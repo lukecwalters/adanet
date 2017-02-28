@@ -12,14 +12,14 @@ cfg.augment = true;
 cfg.augmentLayers = true;
 cfg.activationFunction = 'tanh';
 cfg.numEpochs = 300;
-
+cfg.big_lambda = 1.01;
 % cfg.featureMap = @quadMap;
 cfg.featureMap = [];
 
 
 cfg.lossFunction = 'binary';
 cfg.surrogateLoss = 'logistic';
-
+cfg.javier = true
 %% create synthetic data set
 % [x,y] = cubicsplit;
 addpath datasets/

@@ -148,11 +148,8 @@ end
         
         S = adaParams.S;
         for k = 1:numLayers
-            if ~cfg.javier
-                Ck = cfg.maxWeightMag(k);
-            else
-                Ck = Rloss(k)/4^(k-1); % per Javier's recommendation
-            end
+            %Ck = cfg.maxWeightMag(k);
+            Ck = Rloss(k)/4^(k-1); % per Javier's recommendation
             % inference using existing parameters
             
             switch cfg.lossFunction
@@ -216,32 +213,13 @@ end
         Dnew = Dnew./sum(Dnew);
         m = length(newIdcs);
         S = adaParams.S;
-        if cfg.javier
-            % adding per J.Gonzalva recommendation
-            big_lambdas = zeros(adaParams.maxLayers,1)
-            for n = 0:adaParams.maxLayers-1
-                
-                if n == 0
-                    n_i=adaParams.numInputNodes;
-                else
-                    n_i = maxNodes(n);
-                    big_lambdas(n) = cfg.big_lambda/n_i^(1/q);
-                end
-            end
-        end
+        % adding per J
         
         for k = 1:idx                                       % pg 8, Fig 4, Line 1
+            %Ck = cfg.maxWeightMag(k); 
+            Ck = Rnew(k)/4^(k-1); % per Javier's recommendation
             
-            if ~cfg.javier
-                Ck = cfg.maxWeightMag(k); 
-                Lambda_k = cfg.maxWeightNorms(k);
-            else
-                Ck = Rnew(k)/4^(k-1); % per Javier's recommendation
-                Lambda_k = big_lambdas(k);
-              % adding per J.Gonzalva recommendation
-            end
-             
-            
+            Lambda_k = cfg.maxWeightNorms(k);
             
             if k==1, 
                 nodeNum_km1 = numInputNodes;
