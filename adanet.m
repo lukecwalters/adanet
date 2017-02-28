@@ -71,9 +71,9 @@ for t = 1:T
             case 'binary'
                 Rloss(k) = RademacherComplexity(H{k}(lossIdcs,:));
                 Rnew(k) = RademacherComplexity(H{k}(newIdcs,:));
-            case 'MSE'
-                Rloss(k) = GaussianComplexity(H{k}(lossIdcs,:)); %equivalent with gaussian, instead of binary, noise
-                Rnew(k) = GaussianComplexity(H{k}(newIdcs,:));
+%             case 'MSE'
+%                 Rloss(k) = GaussianComplexity(H{k}(lossIdcs,:)); %equivalent with gaussian, instead of binary, noise
+%                 Rnew(k) = GaussianComplexity(H{k}(newIdcs,:));
             otherwise
                 error('loss not supported')
         end
@@ -113,8 +113,8 @@ for t = 1:T
     switch cfg.lossFunction
         case 'binary'
             adaParams.lossStore(end+1) = mean(slfunc(1-ydata.*fComplete, adaParams.surrogateLoss));
-        case 'MSE'
-            adaParams.lossStore(end+1) =mean(abs(ydata - fComplete).^2);
+%         case 'MSE'
+%             adaParams.lossStore(end+1) =mean(abs(ydata - fComplete).^2);
     end
     plotEpochs = 5;
     if mod(step,plotEpochs)==0
@@ -154,8 +154,8 @@ end
             switch cfg.lossFunction
                 case 'binary'
                     errLoss{k} = Ck/2 * (1-1/Ck*bsxfun(@times, ydata(lossIdcs,:),H{k}(lossIdcs,:))'*Dloss);
-                case 'MSE'
-                    errLoss{k} = Ck/2 *(1 - 1/Ck * (abs(bsxfun(@minus, ydata(lossIdcs,:),H{k}(lossIdcs,:))).^2)'*Dloss);
+%                 case 'MSE'
+%                     errLoss{k} = Ck/2 *(1 - 1/Ck * (abs(bsxfun(@minus, ydata(lossIdcs,:),H{k}(lossIdcs,:))).^2)'*Dloss);
                 otherwise
                     error('loss not supported');
             end
@@ -178,8 +178,8 @@ end
         switch cfg.lossFunction
             case 'binary'
                 errLoss_bias = Ck_bias/2 * (1-1/Ck_bias*bsxfun(@times, ydata(lossIdcs,:),ones(size(ydata(lossIdcs,:))))'*Dloss);
-            case 'MSE'
-                errLoss_bias = Ck_bias/2 * (1-1/Ck_bias*(abs(bsxfun(@minus, ydata(lossIdcs,:),ones(size(ydata(lossIdcs,:))))).^2')*Dloss);
+%             case 'MSE'
+%                 errLoss_bias = Ck_bias/2 * (1-1/Ck_bias*(abs(bsxfun(@minus, ydata(lossIdcs,:),ones(size(ydata(lossIdcs,:))))).^2')*Dloss);
             otherwise
                 error('loss not supported');
         end
@@ -233,10 +233,10 @@ end
                         M_kminus1 = bsxfun(@times,ydata(newIdcs,:),activation(Hk(newIdcs,:),actFunc))'*Dnew;
                         M_qnorm = norm(M_kminus1,q);
                         errNew{k} = Ck/2*(1-Lambda_k/Ck * M_qnorm);  % pg 8, Fig 4, line 3
-                    case 'MSE'
-                        M_kminus1 =  (abs(bsxfun(@minus,ydata(newIdcs,:),activation(Hk(newIdcs,:),actFunc))).^2)'*Dnew;
-                        M_qnorm = norm(M_kminus1,q);
-                        errNew{k} = Ck/2*(1-Lambda_k/Ck * M_qnorm);  % pg 8, Fig 4, line 3
+%                     case 'MSE'
+%                         M_kminus1 =  (abs(bsxfun(@minus,ydata(newIdcs,:),activation(Hk(newIdcs,:),actFunc))).^2)'*Dnew;
+%                         M_qnorm = norm(M_kminus1,q);
+%                         errNew{k} = Ck/2*(1-Lambda_k/Ck * M_qnorm);  % pg 8, Fig 4, line 3
                 end
                 
                 if p == 1,
@@ -345,8 +345,8 @@ end
             switch cfg.lossFunction
                 case 'binary'
                     loss_notk = ydata.*f_notk;
-                case 'MSE'
-                    loss_notk = abs(ydata-f_notk).^2;
+%                 case 'MSE'
+%                     loss_notk = abs(ydata-f_notk).^2;
             end
 
         else
@@ -375,8 +375,8 @@ end
              switch cfg.lossFunction
                 case 'binary'
                     loss_notk = ydata.*(f_notk+adaParams.W_bias);
-                case 'MSE'
-                    loss_notk = abs(ydata-f_notk - adaParams.W_bias).^2;
+%                 case 'MSE'
+%                     loss_notk = abs(ydata-f_notk - adaParams.W_bias).^2;
             end
             
         end
@@ -424,8 +424,8 @@ end
         switch cfg.lossFunction
             case 'binary'
                 gradArg = 1 - ydata.*(fNew+adaParams.W_bias);
-            case 'MSE'
-                gradArg = abs(ydata-(fNew+adaParams.W_bias)).^2;
+%             case 'MSE'
+%                 gradArg = abs(ydata-(fNew+adaParams.W_bias)).^2;
         end
         phiGrad = slgrad(gradArg,adaParams.surrogateLoss);
         % update the sum and the distribution
@@ -529,10 +529,10 @@ switch lossfunc
         farg = 1 - loss_notk - w_k*h_k.*y;
         loss = 1/m * sum(slfunc(farg,surrloss)) + reg_notk + reg_k*abs(w_k);
         grad = -1/m * sum(slgrad(farg,surrloss).*y.*h_k) + sign(w_k)*reg_k;
-    case 'MSE'
-        farg = loss_notk + abs(w_k*h_k - y).^2;
-        loss = 1/m * sum(farg) + reg_notk + reg_k*abs(w_k).^2;
-        grad = ( -1/m * sum(farg.*h_k) +sign(w_k)*reg_k);
+%     case 'MSE'
+%         farg = loss_notk + abs(w_k*h_k - y).^2;
+%         loss = 1/m * sum(farg) + reg_notk + reg_k*abs(w_k).^2;
+%         grad = ( -1/m * sum(farg.*h_k) +sign(w_k)*reg_k);
 end
 end
 
