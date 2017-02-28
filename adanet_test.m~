@@ -1,0 +1,84 @@
+cfg.maxNodes = 50*ones(1,5);
+cfg.maxWeightNorms = 1*ones(size(cfg.maxNodes)); %capital lambda
+% cfg.maxWeightNorms = 1:-0.05:0.55;
+cfg.pnorm = 3;
+cfg.maxWeightMag = 10*ones(size(cfg.maxNodes));
+% cfg.maxWeightMag = linspace(1e2,1e5,length(cfg.maxNodes));
+cfg.maxBiasMag = 10;
+% cfg.complexityRegWeight = .001*ones(size(cfg.maxNodes));
+cfg.complexityRegWeight = logspace(-4,-3,length(cfg.maxNodes));
+cfg.normRegWeight = 0.03*ones(size(cfg.maxNodes)); %beta
+cfg.augment = true;
+cfg.augmentLayers = true;
+cfg.activationFunction = 'tanh';
+cfg.numEpochs = 300;
+
+% cfg.featureMap = @quadMap;
+cfg.featureMap = [];
+
+
+cfg.lossFunction = 'binary';
+cfg.surrogateLoss = 'logistic';
+
+%% create synthetic data set
+% [x,y] = cubicsplit;
+addpath datasets/
+data = twospirals(44100/2, 720, .1,1);
+y = 2*data(:,end)-1;
+x = data(:,1:2);
+x = bsxfun(@times, x, 1./std(x));
+x = bsxfun(@plus, x, -mean(x));
+ %figure,scatter(x(:,1),x(:,2),2,c)
+ 
+% two spirals
+xs = twospirals(44100,540,0,1);
+ys = 2*(xs(:,end))-1;
+xs = xs(:,1:end-1);
+%gscatter(xs(:,1),xs(:,2),ys)
+
+% xs = [xs, xs.^2, xs(:,1).*xs(:,2)];
+% xs = bsxfun(@times,xs,1./std(xs));
+% xs = bsxfun(@plus, xs,-mean(xs));
+
+% % circle
+% xs = clusterincluster(44100,0.25,1);
+% ys = 2*(xs(:,end))-1;
+% xs = xs(:,1:end-1);
+[adaParams,history] = adanet(xs, ys, cfg);
+
+%% Visualize when nodes are added
+vl = 1; %which hidden layer to visualize
+plot(adaParams.lossStore); hold on;
+plot(history.newN(:,1),history.newN(:,vl+1).*adaParams.lossStore(history.newN(:,1)).','g*')
+ylim([0.01,0.5])
+hold off;
+
+adaParams.feedforward = false
+adanet_plot(adaParams,[-2,-2;2,2],200,x,y)
+
+%% Visualize weight modifications over time
+% paramsT.activationFunction = history.activationFunction;
+% paramsT.augment = adaParams.augment;
+% paramsT.augmentLayers = adaParams.augmentLayers;
+% paramsT.feedforward = false;
+% paramsT.W_bias = adaParams.W_bias;
+% paramsT.lossFunction = adaParams.lossFunction;
+% paramsT.featureMap = adaParams.featureMap;
+% Tselect = [1:cfg.numEpochs];
+% minX = 1.1*min(min(xs));
+% maxX = abs(minX);
+% for ti = Tselect
+%     paramsT.W = history.Wt{ti+1};
+%     paramsT.u = history.ut{ti+1};
+%     paramsT.numLayers = history.numL(ti);
+%     paramsT.numNodes = history.numN(ti,:);
+%     adanet_plot(paramsT,[minX,minX;maxX,maxX],200,xs,ys)
+%     titleStr = sprintf('End of Epoch: %d, numNodes: = (',Tselect);
+%     for ni = 1:length(paramsT.numNodes)-1,
+%         titleStr = sprintf([titleStr,'%d,'],paramsT.numNodes(ni));
+%     end
+%     titleStr = sprintf([titleStr,'%d)'],paramsT.numNodes(end));
+%     title(titleStr)
+% %     pause;
+% end
+
